@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sesli Okuyucu</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+
+    <div class="kutu">
+
+        <h1>🔊 Sesli Okuyucu</h1>
+        <p>Yazını gir ve bilgisayarına okut!</p>
+
+        <textarea id="yazi" placeholder="Okunacak yazıyı buraya yaz..."></textarea>
+
+        <div class="butonlar">
+            <button onclick="oku()">▶ Oku</button>
+            <button onclick="durdur()">⏹ Durdur</button>
+        </div>
+
+        <p id="durum">Hazır!</p>
+
+    </div>
+
+    <script>
+
+        async function oku() {
+
+            let yazi = document.getElementById("yazi").value;
+            let durum = document.getElementById("durum");
+
+            if (yazi.trim() === "") {
+                durum.innerText = "Lütfen bir yazı gir!";
+                return;
+            }
+
+            durum.innerText = "Seslendiriliyor...";
+
+            try {
+
+                let cevap = await fetch("/oku", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        yazi: yazi
+                    })
+                });
+
+                let sonuc = await cevap.json();
+
+                durum.innerText = sonuc.mesaj;
+
+            } catch (hata) {
+
+                durum.innerText = "Bağlantı hatası!";
+
+            }
+        }
+
+        async function durdur() {
+
+            try {
+                await fetch("/durdur", {
+                    method: "GET"
+                });
+
+                document.getElementById("durum").innerText = "Durduruldu!";
+
+            } catch (hata) {
+                document.getElementById("durum").innerText = "Hata oluştu!";
+            }
+
+        }
+
+    </script>
+
+</body>
+</html>
